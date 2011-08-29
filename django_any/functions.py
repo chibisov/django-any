@@ -2,6 +2,7 @@
 """
 Additional functions for django-any
 """
+from django.db import models
 
 def valid_choices(choices):
     """
@@ -43,6 +44,8 @@ class ExtensionMethod(object):
         self.by_instance = by_instance
         self.default = None
 
+        self.stop_recursion = False
+
     def register(self, field_type, impl=None):
         """
         Register form field data function.
@@ -80,6 +83,13 @@ class ExtensionMethod(object):
 
         if self.by_instance:
             field_type = args[0]
+
+            if ExtensionMethod.has_recursive_relations(field_type):
+                if self.stop_recursion:
+                    self.stop_recursion = False
+                    return None
+                else:
+                    self.stop_recursion = True
         else:
             field_type = args[0].__class__
 
@@ -91,5 +101,16 @@ class ExtensionMethod(object):
         return function(*args, **kwargs)
 
     def __call__(self, *args, **kwargs):
-        return self._create_value(*args, **kwargs)
+        try:
+            return self._create_value(*args, **kwargs)
+        except RuntimeError:
+            pass
 
+    @classmethod
+    def has_recursive_relations(cls, field_type):
+        for model_field in field_type._meta.fields:
+            if isinstance(model_field, models.ForeignKey):
+                if model_field.rel.to == field_type:
+                    return True
+
+        return False

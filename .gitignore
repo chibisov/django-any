@@ -2,6 +2,7 @@
 .coverage
 .ve
 .cache
+.idea
 reports
 coverage.xml
 nosetests.xml
