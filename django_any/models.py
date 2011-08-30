@@ -216,6 +216,9 @@ def any_file_field(field, **kwargs):
 
     """
     def get_some_file(path):
+        while callable(path):
+            path = path()
+            
         subdirs, files = field.storage.listdir(path)
 
         if files:
