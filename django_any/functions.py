@@ -101,10 +101,7 @@ class ExtensionMethod(object):
         return function(*args, **kwargs)
 
     def __call__(self, *args, **kwargs):
-        try:
-            return self._create_value(*args, **kwargs)
-        except RuntimeError:
-            pass
+        return self._create_value(*args, **kwargs)
 
     @classmethod
     def has_recursive_relations(cls, field_type):
