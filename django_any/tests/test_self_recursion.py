@@ -1,4 +1,9 @@
 # -*- coding: utf-8; mode: django -*-
+"""
+If self recursion is occured and ForeignKey for 'self' is null=True,
+then next object for ForeignKey will not be created.
+"""
+
 from django.db import models
 from django.test import TestCase
 from django_any import any_model
@@ -43,6 +48,7 @@ class TestRecursion(TestCase):
         self.assertEquals(tree_node.name, "Gena")
 
     def test_stop_recursion_should_not_erase_custom_values_for_recursive_model(self):
-        tree_node = any_model(TreeNodeWithGood, parent_node=any_model(TreeNodeWithGood, name="Gena"))
+        tree_node = any_model(TreeNodeWithGood, parent_node=any_model(TreeNodeWithGood, name="Gena"), name="Andrey")
 
+        self.assertEquals(tree_node.name, "Andrey")
         self.assertEquals(tree_node.parent_node.name, "Gena")
