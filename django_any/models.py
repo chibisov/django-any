@@ -217,7 +217,10 @@ def any_file_field(field, **kwargs):
     """
     def get_some_file(path):
         if callable(path):
-            path = path.folder_path_for_django_any
+            path = getattr(path, "folder_path_for_django_any", None)
+
+            if not path:
+                raise ValidationError("Please, set folder_path_for_django_any attribute for your custom upload_to method")
 
         subdirs, files = field.storage.listdir(path)
 
